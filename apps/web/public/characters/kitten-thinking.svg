@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" aria-hidden="true">
+  <defs>
+    <radialGradient id="fur" cx="50%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#ffd9a8"/>
+      <stop offset="55%" stop-color="#f7b072"/>
+      <stop offset="100%" stop-color="#e8884a"/>
+    </radialGradient>
+    <radialGradient id="belly" cx="50%" cy="55%" r="55%">
+      <stop offset="0%" stop-color="#fff7ec"/>
+      <stop offset="100%" stop-color="#ffe6c4"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="148" rx="58" ry="40" fill="url(#fur)"/>
+  <ellipse cx="100" cy="156" rx="36" ry="22" fill="url(#belly)"/>
+  <path d="M156 150 Q186 132 174 108 Q168 96 178 88" stroke="#e8884a" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <circle cx="100" cy="92" r="52" fill="url(#fur)"/>
+  <path d="M55 60 Q60 28 82 58 Z" fill="#e8884a"/>
+  <path d="M145 60 Q140 28 118 58 Z" fill="#e8884a"/>
+  <path d="M62 56 Q66 40 78 56 Z" fill="#ffb8b8"/>
+  <path d="M138 56 Q134 40 122 56 Z" fill="#ffb8b8"/>
+  <path d="M70 58 Q74 50 78 58" stroke="#c66a2c" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M122 58 Q126 50 130 58" stroke="#c66a2c" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="74" cy="106" rx="9" ry="5" fill="#ffaeae" opacity="0.7"/>
+  <ellipse cx="126" cy="106" rx="9" ry="5" fill="#ffaeae" opacity="0.7"/>
+  <!-- one eye looking up, other normal -->
+  <ellipse cx="82" cy="92" rx="7.5" ry="9" fill="#2a2a2a"/>
+  <ellipse cx="118" cy="92" rx="7.5" ry="9" fill="#2a2a2a"/>
+  <circle cx="83" cy="86" r="2.6" fill="#fff"/>
+  <circle cx="119" cy="86" r="2.6" fill="#fff"/>
+  <!-- raised brow -->
+  <path d="M70 78 Q80 70 92 76" stroke="#3a2a22" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <path d="M97 106 Q100 110 103 106 Q100 112 100 112 Z" fill="#ff7e8a"/>
+  <!-- pursed mouth -->
+  <ellipse cx="100" cy="118" rx="5" ry="3" fill="#3a2a22"/>
+  <!-- thought bubbles -->
+  <circle cx="148" cy="46" r="4" fill="#fff" stroke="#bdbdbd" stroke-width="1.5"/>
+  <circle cx="160" cy="34" r="6" fill="#fff" stroke="#bdbdbd" stroke-width="1.5"/>
+  <circle cx="178" cy="22" r="10" fill="#fff" stroke="#bdbdbd" stroke-width="1.5"/>
+  <text x="178" y="27" font-size="14" text-anchor="middle" fill="#7a7a7a" font-family="sans-serif" font-weight="700">?</text>
+  <path d="M62 110 L82 108" stroke="#3a2a22" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
+  <path d="M138 110 L118 108" stroke="#3a2a22" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
+</svg>
