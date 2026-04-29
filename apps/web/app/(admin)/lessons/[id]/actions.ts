@@ -6,6 +6,16 @@ import { z } from "zod"
 import { createClient } from "@/lib/db/server"
 import { requireRole } from "@/lib/auth/session"
 
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .transform((v) => (v ? v : undefined))
+  .refine((v) => v === undefined || /^https?:\/\//.test(v), {
+    message: "Must be an http(s) URL",
+  })
+
 const ExerciseInput = z.object({
   lessonId: z.string().uuid(),
   type: z.enum(["phonics", "handwriting", "sight_word", "vocabulary"]),
@@ -13,6 +23,12 @@ const ExerciseInput = z.object({
   answer: z.string().min(1).max(200),
   alternatives: z.string().max(500).optional(),
   orderIndex: z.coerce.number().int().min(0),
+  voiceOnly: z
+    .union([z.literal("on"), z.literal("true"), z.literal("")])
+    .optional()
+    .transform((v) => v === "on" || v === "true"),
+  imageUrl: optionalUrl,
+  audioUrl: optionalUrl,
 })
 
 export async function createExercise(formData: FormData): Promise<void> {
@@ -24,6 +40,9 @@ export async function createExercise(formData: FormData): Promise<void> {
     answer: formData.get("answer"),
     alternatives: formData.get("alternatives") ?? undefined,
     orderIndex: formData.get("orderIndex"),
+    voiceOnly: formData.get("voiceOnly") ?? undefined,
+    imageUrl: formData.get("imageUrl") ?? undefined,
+    audioUrl: formData.get("audioUrl") ?? undefined,
   })
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message)
 
@@ -32,16 +51,26 @@ export async function createExercise(formData: FormData): Promise<void> {
     .map((s) => s.trim())
     .filter(Boolean)
 
+  const expected: {
+    answer: string
+    alternatives?: string[]
+    voiceOnly?: boolean
+  } = { answer: parsed.data.answer }
+  if (alts.length) expected.alternatives = alts
+  if (parsed.data.voiceOnly) expected.voiceOnly = true
+
+  const assets: { imageUrl?: string; audioUrl?: string } = {}
+  if (parsed.data.imageUrl) assets.imageUrl = parsed.data.imageUrl
+  if (parsed.data.audioUrl) assets.audioUrl = parsed.data.audioUrl
+
   const supabase = await createClient()
   const { error } = await supabase.from("exercises").insert({
     lesson_id: parsed.data.lessonId,
     type: parsed.data.type,
     prompt: parsed.data.prompt,
-    expected: {
-      answer: parsed.data.answer,
-      ...(alts.length ? { alternatives: alts } : {}),
-    },
+    expected,
     order_index: parsed.data.orderIndex,
+    ...(Object.keys(assets).length ? { assets } : {}),
   })
   if (error) throw new Error(error.message)
   revalidatePath(`/lessons/${parsed.data.lessonId}`)

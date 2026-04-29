@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { requireUser } from "@/lib/auth/session"
 import { getLesson } from "@/lib/services/lessons"
-import { ExpectedAnswer } from "@/lib/ai/schemas"
+import { ExpectedAnswer, ExerciseAssets } from "@/lib/ai/schemas"
 import { LessonPlayer } from "./_components/LessonPlayer"
 
 export default async function LessonPage({
@@ -25,6 +25,10 @@ export default async function LessonPage({
     prompt: e.prompt,
     orderIndex: e.order_index,
     expected: ExpectedAnswer.parse(e.expected),
+    assets:
+      e.assets == null
+        ? null
+        : ExerciseAssets.safeParse(e.assets).data ?? null,
   }))
 
   return (

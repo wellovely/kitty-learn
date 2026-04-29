@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
-import { Lightbulb, Send, SkipForward, Volume2 } from "lucide-react"
+import { Headphones, Lightbulb, Send, SkipForward, Volume2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { GameButton } from "@workspace/ui/components/game-button"
 import { Input } from "@workspace/ui/components/input"
@@ -15,6 +15,7 @@ type ExerciseInput = {
   type: "phonics" | "handwriting" | "sight_word" | "vocabulary"
   prompt: string
   voiceOnly?: boolean
+  assets?: { imageUrl?: string; audioUrl?: string } | null
 }
 
 type Props = {
@@ -57,6 +58,7 @@ const TYPE_INSTRUCTION: Record<
 
 export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Props) {
   const [voiceAnswer, setVoiceAnswer] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const { play } = useSound()
   const speech = useSpeech()
   const { register, handleSubmit, setValue, watch, reset } = useForm<{
@@ -65,6 +67,17 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
   const answer = watch("answer")
   const meta = TYPE_INSTRUCTION[exercise.type]
   const voiceOnly = exercise.voiceOnly === true
+  const imageUrl = exercise.assets?.imageUrl
+  const audioUrl = exercise.assets?.audioUrl
+
+  function playAudioAsset() {
+    if (!audioUrl) return
+    play("click")
+    const el = audioRef.current
+    if (!el) return
+    el.currentTime = 0
+    void el.play().catch(() => {})
+  }
 
   function submit(values: { answer: string }) {
     const text = values.answer.trim()
@@ -103,6 +116,17 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
         </p>
       </div>
 
+      {imageUrl && (
+        <div className="mb-3 flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt={exercise.prompt}
+            className="max-h-44 w-auto rounded-2xl border-[3px] border-game-orange-edge bg-white object-contain p-1 shadow-[0_4px_0_0_var(--game-orange-edge)]"
+          />
+        </div>
+      )}
+
       <div className="flex items-center justify-center gap-2">
         <p className="text-center text-2xl font-bold leading-snug">
           {exercise.prompt}
@@ -120,7 +144,29 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
             <Volume2 className={speech.speaking ? "animate-pulse" : ""} />
           </Button>
         )}
+        {audioUrl && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={playAudioAsset}
+            disabled={pending}
+            aria-label="Play recorded audio"
+            className="rounded-full text-game-cyan-edge hover:bg-game-cyan-soft"
+          >
+            <Headphones />
+          </Button>
+        )}
       </div>
+
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          preload="auto"
+          className="hidden"
+        />
+      )}
 
       {voiceOnly ? (
         <div className="mt-5 flex flex-col items-center gap-4">

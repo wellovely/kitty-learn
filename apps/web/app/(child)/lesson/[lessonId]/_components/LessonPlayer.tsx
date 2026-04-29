@@ -22,6 +22,7 @@ type ExerciseInput = {
   prompt: string
   orderIndex: number
   expected: { answer: string; alternatives?: string[]; voiceOnly?: boolean }
+  assets: { imageUrl?: string; audioUrl?: string } | null
 }
 
 type Props = {
@@ -289,6 +290,7 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
           type: current.type,
           prompt: current.prompt,
           voiceOnly: current.expected.voiceOnly === true,
+          assets: current.assets,
         }}
         pending={pending}
         onSubmit={handleAnswer}

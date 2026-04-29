@@ -23,7 +23,9 @@ export default async function LessonAdmin({
   const supabase = await createClient()
   const { data: lesson } = await supabase
     .from("lessons")
-    .select("id, title, unit_id, exercises(id, type, prompt, expected, order_index)")
+    .select(
+      "id, title, unit_id, exercises(id, type, prompt, expected, assets, order_index)"
+    )
     .eq("id", id)
     .single()
   if (!lesson) notFound()
@@ -61,7 +63,15 @@ export default async function LessonAdmin({
             </p>
           )}
           {exercises.map((e, i) => {
-            const expected = e.expected as { answer?: string; alternatives?: string[] }
+            const expected = e.expected as {
+              answer?: string
+              alternatives?: string[]
+              voiceOnly?: boolean
+            }
+            const assets = (e.assets ?? null) as {
+              imageUrl?: string
+              audioUrl?: string
+            } | null
             const delEx = deleteExercise.bind(null, e.id, lesson.id)
             const tone = pickTone(i)
             return (
@@ -69,7 +79,7 @@ export default async function LessonAdmin({
                 key={e.id}
                 className={`flex items-start justify-between gap-3 rounded-2xl border-[3px] ${tone.edge} bg-white p-4 dark:bg-neutral-950`}
               >
-                <div className="text-sm">
+                <div className="flex flex-col gap-1 text-sm">
                   <p className="font-bold">
                     <span className={tone.edgeText}>{e.order_index}.</span> {e.prompt}
                   </p>
@@ -79,6 +89,25 @@ export default async function LessonAdmin({
                       ? ` (alts: ${expected.alternatives.join(", ")})`
                       : ""}
                   </p>
+                  {(expected?.voiceOnly || assets?.imageUrl || assets?.audioUrl) && (
+                    <div className="flex flex-wrap gap-1">
+                      {expected?.voiceOnly && (
+                        <span className="rounded-full border-[2px] border-game-purple-edge bg-game-purple-soft px-2 py-0.5 text-[11px] font-bold text-game-purple-edge">
+                          🎤 voice only
+                        </span>
+                      )}
+                      {assets?.imageUrl && (
+                        <span className="rounded-full border-[2px] border-game-orange-edge bg-game-orange-soft px-2 py-0.5 text-[11px] font-bold text-game-orange-edge">
+                          🖼 image
+                        </span>
+                      )}
+                      {assets?.audioUrl && (
+                        <span className="rounded-full border-[2px] border-game-cyan-edge bg-game-cyan-soft px-2 py-0.5 text-[11px] font-bold text-game-cyan-edge">
+                          🔊 audio
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <form action={delEx}>
                   <GameButton color="neutral" size="sm" type="submit">
@@ -146,6 +175,49 @@ export default async function LessonAdmin({
             </Label>
             <Input id="alternatives" name="alternatives" maxLength={500} className={inputCls} />
           </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="imageUrl" className="font-bold">
+              Image URL (optional)
+            </Label>
+            <Input
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              maxLength={500}
+              placeholder="https://…"
+              className={inputCls}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="audioUrl" className="font-bold">
+              Audio URL (optional)
+            </Label>
+            <Input
+              id="audioUrl"
+              name="audioUrl"
+              type="url"
+              maxLength={500}
+              placeholder="https://…"
+              className={inputCls}
+            />
+          </div>
+          <label
+            htmlFor="voiceOnly"
+            className="flex cursor-pointer items-center gap-2 md:col-span-2"
+          >
+            <input
+              type="checkbox"
+              id="voiceOnly"
+              name="voiceOnly"
+              className="size-5 cursor-pointer accent-game-purple"
+            />
+            <span className="font-bold">
+              Voice only{" "}
+              <span className="font-normal text-muted-foreground">
+                — child must answer by voice (no text input)
+              </span>
+            </span>
+          </label>
           <GameButton type="submit" color="lime" size="md" className="md:col-span-2 md:w-max">
             Add exercise
           </GameButton>

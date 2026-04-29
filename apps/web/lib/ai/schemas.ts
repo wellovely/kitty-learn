@@ -53,3 +53,9 @@ export const ExpectedAnswer = z.object({
   voiceOnly: z.boolean().optional(),
 })
 export type ExpectedAnswer = z.infer<typeof ExpectedAnswer>
+
+export const ExerciseAssets = z.object({
+  imageUrl: z.string().url().optional(),
+  audioUrl: z.string().url().optional(),
+})
+export type ExerciseAssets = z.infer<typeof ExerciseAssets>
