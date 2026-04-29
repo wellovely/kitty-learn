@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Lightbulb, Send, SkipForward, Volume2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import { GameButton } from "@workspace/ui/components/game-button"
 import { Input } from "@workspace/ui/components/input"
 import { useSound } from "@/hooks/useSound"
 import { useSpeech } from "@/hooks/useSpeech"
@@ -91,9 +92,9 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
   }
 
   return (
-    <div className="relative rounded-[28px] border-4 border-white/80 bg-gradient-to-br from-white to-amber-50 p-5 shadow-xl dark:from-neutral-900 dark:to-neutral-950">
+    <div className="relative rounded-[28px] border-[3px] border-game-cyan-edge bg-white p-5 shadow-[0_6px_0_0_var(--game-cyan-edge)] dark:bg-neutral-950">
       <div className="mb-3 flex flex-col items-center gap-1.5">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+        <span className="inline-flex items-center gap-1.5 rounded-full border-[2px] border-game-amber-edge bg-game-amber-soft px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-game-amber-edge">
           <span className="text-sm leading-none">{meta.emoji}</span>
           {voiceOnly ? `${meta.label} · Voice` : meta.label}
         </span>
@@ -125,34 +126,34 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
         <div className="mt-5 flex flex-col items-center gap-4">
           <VoiceButton onTranscript={handleVoice} />
           <div className="flex w-full items-center justify-between gap-2">
-            <Button
+            <GameButton
               type="button"
-              variant="outline"
-              size="lg"
+              color="amber"
+              size="md"
               onClick={() => {
                 play("pop")
                 onHint()
               }}
               disabled={pending}
-              className="flex-1 rounded-full"
+              className="flex-1"
             >
               <Lightbulb />
               Hint
-            </Button>
-            <Button
+            </GameButton>
+            <GameButton
               type="button"
-              variant="ghost"
-              size="lg"
+              color="neutral"
+              size="md"
               onClick={() => {
                 play("pop")
                 onSkip()
               }}
               disabled={pending}
-              className="flex-1 rounded-full text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              className="flex-1"
             >
               <SkipForward />
               Can&apos;t speak now
-            </Button>
+            </GameButton>
           </div>
           {voiceAnswer && !pending && (
             <p className="text-muted-foreground text-center text-xs">
@@ -168,30 +169,29 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
             autoCapitalize="none"
             spellCheck={false}
             disabled={pending}
-            className="h-14 rounded-full border-2 border-amber-200 bg-white text-center text-xl font-semibold focus-visible:border-amber-400 dark:border-amber-900 dark:bg-neutral-950"
+            className="h-14 rounded-2xl border-[3px] border-game-cyan bg-white text-center text-xl font-semibold focus-visible:border-game-cyan-edge focus-visible:ring-0 dark:bg-neutral-950"
             {...register("answer")}
           />
           <div className="flex items-center justify-between gap-2">
             <VoiceButton onTranscript={handleVoice} />
-            <Button
+            <GameButton
               type="button"
-              variant="outline"
-              size="lg"
+              color="amber"
+              size="md"
               onClick={() => {
                 play("pop")
                 onHint()
               }}
               disabled={pending}
-              className="rounded-full"
             >
               <Lightbulb />
               Hint
-            </Button>
-            <Button
+            </GameButton>
+            <GameButton
               type="submit"
-              size="lg"
+              color="lime"
+              size="md"
               disabled={pending || !answer.trim()}
-              className="rounded-full bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-neutral-300"
             >
               {pending ? "…" : (
                 <>
@@ -199,7 +199,7 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
                   Go
                 </>
               )}
-            </Button>
+            </GameButton>
           </div>
           {voiceAnswer && !pending && (
             <p className="text-muted-foreground text-center text-xs">

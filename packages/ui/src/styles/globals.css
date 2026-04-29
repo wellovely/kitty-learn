@@ -40,6 +40,25 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    --game-lime: #58cc02;
+    --game-lime-edge: #3ea102;
+    --game-lime-soft: #eaffd4;
+    --game-orange: #ff9600;
+    --game-orange-edge: #cf7400;
+    --game-orange-soft: #ffeccc;
+    --game-cyan: #1cb0f6;
+    --game-cyan-edge: #0a85c4;
+    --game-cyan-soft: #d6efff;
+    --game-purple: #ce82ff;
+    --game-purple-edge: #9352cb;
+    --game-purple-soft: #f1e1ff;
+    --game-red: #ff4b4b;
+    --game-red-edge: #c93232;
+    --game-red-soft: #ffdede;
+    --game-amber: #ffc800;
+    --game-amber-edge: #c69500;
+    --game-amber-soft: #fff3c4;
 }
 
 .dark {
@@ -74,6 +93,25 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+
+    --game-lime: #58cc02;
+    --game-lime-edge: #3ea102;
+    --game-lime-soft: #1f3a07;
+    --game-orange: #ff9600;
+    --game-orange-edge: #cf7400;
+    --game-orange-soft: #3a2807;
+    --game-cyan: #1cb0f6;
+    --game-cyan-edge: #0a85c4;
+    --game-cyan-soft: #07283a;
+    --game-purple: #ce82ff;
+    --game-purple-edge: #9352cb;
+    --game-purple-soft: #2a113a;
+    --game-red: #ff4b4b;
+    --game-red-edge: #c93232;
+    --game-red-soft: #3a0a0a;
+    --game-amber: #ffc800;
+    --game-amber-edge: #c69500;
+    --game-amber-soft: #3a2c07;
 }
 
 @theme inline {
@@ -119,6 +157,26 @@
     --font-heading: var(--font-heading);
     --animate-wiggle: wiggle 1.2s ease-in-out infinite;
     --animate-float: float 3s ease-in-out infinite;
+    --animate-pop: pop 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --color-game-lime: var(--game-lime);
+    --color-game-lime-edge: var(--game-lime-edge);
+    --color-game-lime-soft: var(--game-lime-soft);
+    --color-game-orange: var(--game-orange);
+    --color-game-orange-edge: var(--game-orange-edge);
+    --color-game-orange-soft: var(--game-orange-soft);
+    --color-game-cyan: var(--game-cyan);
+    --color-game-cyan-edge: var(--game-cyan-edge);
+    --color-game-cyan-soft: var(--game-cyan-soft);
+    --color-game-purple: var(--game-purple);
+    --color-game-purple-edge: var(--game-purple-edge);
+    --color-game-purple-soft: var(--game-purple-soft);
+    --color-game-red: var(--game-red);
+    --color-game-red-edge: var(--game-red-edge);
+    --color-game-red-soft: var(--game-red-soft);
+    --color-game-amber: var(--game-amber);
+    --color-game-amber-edge: var(--game-amber-edge);
+    --color-game-amber-soft: var(--game-amber-soft);
 }
 
 @keyframes wiggle {
@@ -129,6 +187,12 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-6px); }
+}
+
+@keyframes pop {
+  0%   { transform: scale(0.9); }
+  60%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
 @layer base {

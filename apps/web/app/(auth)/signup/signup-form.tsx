@@ -7,10 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { Button } from "@workspace/ui/components/button"
+import { GameButton } from "@workspace/ui/components/game-button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { Card, CardContent } from "@workspace/ui/components/card"
 import { createClient } from "@/lib/db/browser"
 
 const Schema = z.object({
@@ -50,56 +49,64 @@ export function SignupForm() {
     router.refresh()
   }
 
+  const inputCls =
+    "h-12 rounded-2xl border-[2px] border-neutral-200 bg-white text-base focus-visible:border-game-cyan focus-visible:ring-0 dark:bg-neutral-950"
+  const errCls =
+    "rounded-xl border-[2px] border-game-red-edge bg-game-red-soft px-2.5 py-1 text-xs font-semibold text-game-red-edge"
+
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="fullName">Your name</Label>
-            <Input
-              id="fullName"
-              aria-invalid={!!errors.fullName}
-              {...register("fullName")}
-            />
-            {errors.fullName && (
-              <p className="text-destructive text-xs">
-                {errors.fullName.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-destructive text-xs">{errors.email.message}</p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              aria-invalid={!!errors.password}
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-destructive text-xs">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-          <Button type="submit" disabled={pending} className="mt-2">
-            {pending ? "Creating..." : "Create account"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="rounded-3xl border-[3px] border-game-cyan-edge bg-white p-6 shadow-[0_6px_0_0_var(--game-cyan-edge)] dark:bg-neutral-950">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="fullName" className="font-bold">
+            Your name
+          </Label>
+          <Input
+            id="fullName"
+            aria-invalid={!!errors.fullName}
+            className={inputCls}
+            {...register("fullName")}
+          />
+          {errors.fullName && <p className={errCls}>{errors.fullName.message}</p>}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email" className="font-bold">
+            Email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            className={inputCls}
+            {...register("email")}
+          />
+          {errors.email && <p className={errCls}>{errors.email.message}</p>}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="password" className="font-bold">
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={!!errors.password}
+            className={inputCls}
+            {...register("password")}
+          />
+          {errors.password && <p className={errCls}>{errors.password.message}</p>}
+        </div>
+        <GameButton
+          type="submit"
+          color="lime"
+          size="lg"
+          disabled={pending}
+          className="mt-2"
+        >
+          {pending ? "Creating..." : "Create account"}
+        </GameButton>
+      </form>
+    </div>
   )
 }

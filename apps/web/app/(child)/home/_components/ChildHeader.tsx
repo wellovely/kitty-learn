@@ -17,7 +17,7 @@ export function ChildHeader({
   hearts: number
 }) {
   return (
-    <header className="sticky top-2 z-10 flex items-center gap-3 rounded-full border border-neutral-200/70 bg-white/85 px-2 py-1.5 shadow-[0_2px_12px_-6px_rgba(0,0,0,0.08)] backdrop-blur-md dark:border-neutral-800/70 dark:bg-neutral-900/70">
+    <header className="sticky top-2 z-10 flex items-center gap-3 rounded-full border-[2px] border-game-cyan-edge bg-white px-2 py-1.5 shadow-[0_4px_0_0_var(--game-cyan-edge)] dark:bg-neutral-900">
       <Link
         href="/dashboard"
         aria-label="Back to parent"
@@ -26,12 +26,12 @@ export function ChildHeader({
         <ArrowLeft />
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col leading-tight">
-        <span className="truncate text-sm font-semibold">Hi, {name}</span>
-        <div className="flex items-center gap-3 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
-          <Stat icon={Star} value={xp} color="text-amber-500" label="xp" />
-          <Stat icon={Flame} value={streak} color="text-rose-500" label="streak" />
-          <Stat icon={Heart} value={hearts} color="text-emerald-500" label="hearts" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1 leading-tight">
+        <span className="truncate text-sm font-bold">Hi, {name}</span>
+        <div className="flex items-center gap-1.5">
+          <Chip icon={Star} value={xp} tone="amber" label="xp" />
+          <Chip icon={Flame} value={streak} tone="red" label="streak" />
+          <Chip icon={Heart} value={hearts} tone="lime" label="hearts" />
         </div>
       </div>
 
@@ -40,20 +40,30 @@ export function ChildHeader({
   )
 }
 
-function Stat({
+const CHIP_TONES = {
+  amber:
+    "border-game-amber-edge bg-game-amber-soft text-game-amber-edge",
+  red: "border-game-red-edge bg-game-red-soft text-game-red-edge",
+  lime: "border-game-lime-edge bg-game-lime-soft text-game-lime-edge",
+} as const
+
+function Chip({
   icon: Icon,
   value,
-  color,
+  tone,
   label,
 }: {
   icon: React.ComponentType<{ className?: string }>
   value: number
-  color: string
+  tone: keyof typeof CHIP_TONES
   label: string
 }) {
   return (
-    <span className="flex items-center gap-1" aria-label={`${label} ${value}`}>
-      <Icon className={`size-3.5 ${color}`} />
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border-[2px] px-2 py-0.5 text-[11px] font-bold ${CHIP_TONES[tone]}`}
+      aria-label={`${label} ${value}`}
+    >
+      <Icon className="size-3" />
       <span className="tabular-nums">{value}</span>
     </span>
   )

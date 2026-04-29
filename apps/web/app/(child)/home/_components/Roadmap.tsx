@@ -19,11 +19,41 @@ export type RoadmapLesson = {
 const OFFSETS_PX = [0, 28, 40, 28, 0, -28, -40, -28] as const
 
 const UNIT_PALETTES = [
-  { main: "#58cc02", edge: "#3ea102", soft: "#eaffd4" },
-  { main: "#ff9600", edge: "#cf7400", soft: "#ffeccc" },
-  { main: "#1cb0f6", edge: "#0a85c4", soft: "#d6efff" },
-  { main: "#ce82ff", edge: "#9352cb", soft: "#f1e1ff" },
-  { main: "#ff4b4b", edge: "#c93232", soft: "#ffdede" },
+  {
+    bg: "bg-game-lime",
+    edge: "border-game-lime-edge",
+    edgeText: "text-game-lime-edge",
+    shadow: "shadow-[0_6px_0_0_var(--game-lime-edge)]",
+    activeShadow: "active:shadow-[0_2px_0_0_var(--game-lime-edge)]",
+  },
+  {
+    bg: "bg-game-orange",
+    edge: "border-game-orange-edge",
+    edgeText: "text-game-orange-edge",
+    shadow: "shadow-[0_6px_0_0_var(--game-orange-edge)]",
+    activeShadow: "active:shadow-[0_2px_0_0_var(--game-orange-edge)]",
+  },
+  {
+    bg: "bg-game-cyan",
+    edge: "border-game-cyan-edge",
+    edgeText: "text-game-cyan-edge",
+    shadow: "shadow-[0_6px_0_0_var(--game-cyan-edge)]",
+    activeShadow: "active:shadow-[0_2px_0_0_var(--game-cyan-edge)]",
+  },
+  {
+    bg: "bg-game-purple",
+    edge: "border-game-purple-edge",
+    edgeText: "text-game-purple-edge",
+    shadow: "shadow-[0_6px_0_0_var(--game-purple-edge)]",
+    activeShadow: "active:shadow-[0_2px_0_0_var(--game-purple-edge)]",
+  },
+  {
+    bg: "bg-game-red",
+    edge: "border-game-red-edge",
+    edgeText: "text-game-red-edge",
+    shadow: "shadow-[0_6px_0_0_var(--game-red-edge)]",
+    activeShadow: "active:shadow-[0_2px_0_0_var(--game-red-edge)]",
+  },
 ] as const
 
 type Palette = (typeof UNIT_PALETTES)[number]
@@ -113,15 +143,19 @@ function UnitBanner({
       className="my-6 flex w-full items-center gap-3 rounded-2xl border border-neutral-200/70 bg-white/80 px-3.5 py-3 backdrop-blur-sm dark:border-neutral-800/70 dark:bg-neutral-900/60"
     >
       <div
-        className="flex size-9 shrink-0 items-center justify-center rounded-xl text-white"
-        style={{ background: palette.main }}
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-xl text-white",
+          palette.bg
+        )}
       >
         <BookOpen className="size-4" strokeWidth={2.5} />
       </div>
       <div className="min-w-0 flex-1 leading-tight">
         <p
-          className="text-[10px] font-bold uppercase tracking-[0.14em]"
-          style={{ color: palette.edge }}
+          className={cn(
+            "text-[10px] font-bold uppercase tracking-[0.14em]",
+            palette.edgeText
+          )}
         >
           {title}
         </p>
@@ -183,13 +217,6 @@ function LessonNode(props: {
     )
   }
 
-  const bodyStyle: React.CSSProperties = {
-    background: props.palette.main,
-    boxShadow: `0 6px 0 0 ${props.palette.edge}`,
-    color: "#ffffff",
-    borderColor: props.palette.edge,
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8, scale: 0.96 }}
@@ -204,12 +231,15 @@ function LessonNode(props: {
         onPointerEnter={() => props.isCurrent && play("pop")}
         aria-label={`Lesson ${props.index}: ${props.title}`}
         className={cn(
-          "relative flex items-center justify-center rounded-full border-[3px] transition-all",
+          "relative flex items-center justify-center rounded-full border-[3px] text-white transition-[transform,box-shadow]",
           size,
-          "active:translate-y-1 active:shadow-[0_2px_0_0]",
+          props.palette.bg,
+          props.palette.edge,
+          props.palette.shadow,
+          "active:translate-y-1",
+          props.palette.activeShadow,
           props.isCurrent && "animate-[wiggle_1.2s_ease-in-out_infinite]"
         )}
-        style={bodyStyle}
       >
         {props.completed ? (
           <Check className="size-9" strokeWidth={4} />

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@workspace/ui/components/button"
+import { GameButton } from "@workspace/ui/components/game-button"
 import { createClient } from "@/lib/db/browser"
 
 export function SignOutButton() {
@@ -16,8 +16,8 @@ export function SignOutButton() {
     router.refresh()
   }
   return (
-    <Button variant="ghost" size="sm" onClick={handle} disabled={pending}>
+    <GameButton color="neutral" size="sm" onClick={handle} disabled={pending}>
       {pending ? "..." : "Sign out"}
-    </Button>
+    </GameButton>
   )
 }

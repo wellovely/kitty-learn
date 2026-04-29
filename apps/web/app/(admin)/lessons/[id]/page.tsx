@@ -1,15 +1,18 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/db/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Button } from "@workspace/ui/components/button"
+import { GameButton } from "@workspace/ui/components/game-button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import { pickTone } from "@/lib/game-palette"
 import {
   createExercise,
   deleteExercise,
   deleteLesson,
 } from "./actions"
+
+const inputCls =
+  "h-11 rounded-2xl border-[2px] border-neutral-200 bg-white focus-visible:border-game-cyan focus-visible:ring-0 dark:bg-neutral-950"
 
 export default async function LessonAdmin({
   params,
@@ -32,38 +35,44 @@ export default async function LessonAdmin({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex items-end justify-between">
+      <header className="flex items-end justify-between gap-3">
         <div>
-          <Link href="/units" className="text-muted-foreground text-sm underline">
+          <Link
+            href="/units"
+            className="text-sm font-bold text-game-purple-edge underline-offset-4 hover:underline"
+          >
             ← Units
           </Link>
           <h1 className="mt-1 text-2xl font-bold">{lesson.title}</h1>
         </div>
         <form action={del}>
-          <Button variant="destructive" type="submit" size="sm">
+          <GameButton color="red" type="submit" size="sm">
             Delete lesson
-          </Button>
+          </GameButton>
         </form>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Exercises</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+      <div className="rounded-3xl border-[3px] border-game-cyan-edge bg-game-cyan-soft p-5 shadow-[0_6px_0_0_var(--game-cyan-edge)]">
+        <h2 className="mb-3 text-lg font-bold text-game-cyan-edge">Exercises</h2>
+        <div className="flex flex-col gap-3">
           {exercises.length === 0 && (
-            <p className="text-muted-foreground text-sm">No exercises yet.</p>
+            <p className="text-sm font-semibold italic text-game-cyan-edge">
+              No exercises yet.
+            </p>
           )}
-          {exercises.map((e) => {
+          {exercises.map((e, i) => {
             const expected = e.expected as { answer?: string; alternatives?: string[] }
             const delEx = deleteExercise.bind(null, e.id, lesson.id)
+            const tone = pickTone(i)
             return (
               <div
                 key={e.id}
-                className="border rounded-lg p-3 flex items-start justify-between gap-3"
+                className={`flex items-start justify-between gap-3 rounded-2xl border-[3px] ${tone.edge} bg-white p-4 dark:bg-neutral-950`}
               >
                 <div className="text-sm">
-                  <p className="font-medium">{e.order_index}. {e.prompt}</p>
+                  <p className="font-bold">
+                    <span className={tone.edgeText}>{e.order_index}.</span> {e.prompt}
+                  </p>
                   <p className="text-muted-foreground">
                     {e.type} · answer: {expected?.answer}
                     {expected?.alternatives?.length
@@ -72,69 +81,76 @@ export default async function LessonAdmin({
                   </p>
                 </div>
                 <form action={delEx}>
-                  <Button variant="ghost" size="sm" type="submit">
+                  <GameButton color="neutral" size="sm" type="submit">
                     Delete
-                  </Button>
+                  </GameButton>
                 </form>
               </div>
             )
           })}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Add exercise</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            action={createExercise}
-            className="grid gap-3 md:grid-cols-2 md:items-end"
-          >
-            <input type="hidden" name="lessonId" value={lesson.id} />
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="type">Type</Label>
-              <select
-                id="type"
-                name="type"
-                className="border rounded-md h-9 px-3 text-sm"
-                defaultValue="phonics"
-              >
-                <option value="phonics">Phonics</option>
-                <option value="handwriting">Handwriting</option>
-                <option value="sight_word">Sight Word</option>
-                <option value="vocabulary">Vocabulary</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="orderIndex">Order</Label>
-              <Input
-                id="orderIndex"
-                name="orderIndex"
-                type="number"
-                min={0}
-                defaultValue={exercises.length + 1}
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1 md:col-span-2">
-              <Label htmlFor="prompt">Prompt</Label>
-              <Input id="prompt" name="prompt" required maxLength={500} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="answer">Expected answer</Label>
-              <Input id="answer" name="answer" required maxLength={200} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="alternatives">Alternatives (comma-separated)</Label>
-              <Input id="alternatives" name="alternatives" maxLength={500} />
-            </div>
-            <Button type="submit" className="md:col-span-2 md:w-max">
-              Add exercise
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="rounded-3xl border-[3px] border-game-lime-edge bg-white p-5 shadow-[0_6px_0_0_var(--game-lime-edge)] dark:bg-neutral-950">
+        <h2 className="mb-3 text-lg font-bold text-game-lime-edge">Add exercise</h2>
+        <form
+          action={createExercise}
+          className="grid gap-3 md:grid-cols-2 md:items-end"
+        >
+          <input type="hidden" name="lessonId" value={lesson.id} />
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="type" className="font-bold">
+              Type
+            </Label>
+            <select
+              id="type"
+              name="type"
+              className="h-11 rounded-2xl border-[2px] border-neutral-200 bg-white px-3 text-sm font-semibold focus-visible:border-game-cyan focus-visible:outline-none dark:bg-neutral-950"
+              defaultValue="phonics"
+            >
+              <option value="phonics">Phonics</option>
+              <option value="handwriting">Handwriting</option>
+              <option value="sight_word">Sight Word</option>
+              <option value="vocabulary">Vocabulary</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="orderIndex" className="font-bold">
+              Order
+            </Label>
+            <Input
+              id="orderIndex"
+              name="orderIndex"
+              type="number"
+              min={0}
+              defaultValue={exercises.length + 1}
+              required
+              className={inputCls}
+            />
+          </div>
+          <div className="flex flex-col gap-1 md:col-span-2">
+            <Label htmlFor="prompt" className="font-bold">
+              Prompt
+            </Label>
+            <Input id="prompt" name="prompt" required maxLength={500} className={inputCls} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="answer" className="font-bold">
+              Expected answer
+            </Label>
+            <Input id="answer" name="answer" required maxLength={200} className={inputCls} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="alternatives" className="font-bold">
+              Alternatives (comma-separated)
+            </Label>
+            <Input id="alternatives" name="alternatives" maxLength={500} className={inputCls} />
+          </div>
+          <GameButton type="submit" color="lime" size="md" className="md:col-span-2 md:w-max">
+            Add exercise
+          </GameButton>
+        </form>
+      </div>
     </div>
   )
 }
