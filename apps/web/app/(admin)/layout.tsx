@@ -25,6 +25,12 @@ export default async function AdminLayout({
             >
               Units &amp; lessons
             </Link>
+            <Link
+              href="/users"
+              className="rounded-full px-3 py-1 font-semibold text-muted-foreground hover:bg-game-purple-soft hover:text-game-purple-edge"
+            >
+              Users
+            </Link>
           </nav>
           <SignOutButton />
         </div>
