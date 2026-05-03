@@ -28,7 +28,7 @@ In **Vercel → Project → Settings → Environment Variables** (at least **Pro
 
 | Variable | Notes |
 |----------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_URL` | **API URL only** — in Supabase: **Settings → API → Project URL** (shape `https://<ref>.supabase.co`). **Wrong:** pasting the browser link `https://supabase.com/dashboard/project/<ref>/...` — that is the admin UI, not Auth; the app will hit `/auth/v1/...` there and CORS will fail. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only; never `NEXT_PUBLIC_*` |
 | `OPENROUTER_API_KEY` | AI routing |
