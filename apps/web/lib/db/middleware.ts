@@ -13,13 +13,14 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(items) {
-          for (const { name, value } of items) {
-            request.cookies.set(name, value)
-          }
+        setAll(cookiesToSet, headers) {
+          // Do not call request.cookies.set — it throws on Vercel Edge / Next 15+.
           response = NextResponse.next({ request })
-          for (const { name, value, options } of items) {
+          cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options)
+          })
+          for (const [key, value] of Object.entries(headers)) {
+            response.headers.set(key, value)
           }
         },
       },
