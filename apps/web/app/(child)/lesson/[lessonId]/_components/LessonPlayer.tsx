@@ -217,11 +217,11 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border-[2px] border-game-amber-edge bg-game-amber-soft px-3 py-1 text-sm font-bold text-game-amber-edge">
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2der-game-amber-edge bg-game-amber-soft px-3 py-1 text-sm font-bold text-game-amber-edge">
             <Star className="size-3.5 fill-game-amber text-game-amber-edge" strokeWidth={0} />
             +{summary.xpEarned} XP
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border-[2px] border-game-red-edge bg-game-red-soft px-3 py-1 text-sm font-bold text-game-red-edge">
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-game-red-edge bg-game-red-soft px-3 py-1 text-sm font-bold text-game-red-edge">
             <Flame className="size-3.5" />
             {summary.streakDays}
           </span>
@@ -257,7 +257,7 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex items-center justify-between rounded-full border-[2px] border-game-cyan-edge bg-white px-4 py-2 shadow-[0_4px_0_0_var(--game-cyan-edge)] dark:bg-neutral-900">
+      <header className="flex items-center justify-between rounded-full border-2der-game-cyan-edge bg-white px-4 py-2 shadow-[0_4px_0_0_var(--game-cyan-edge)] dark:bg-neutral-900">
         <button
           type="button"
           onClick={() => {
@@ -275,10 +275,10 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
       <div className="flex flex-col items-center gap-2 py-2">
         <KittenCharacter emotion={emotion} speaking={speech.speaking} />
         {lastFeedback && (
-          <div className="relative max-w-sm rounded-2xl border-[2px] border-game-amber-edge bg-game-amber-soft px-4 py-2 text-center text-sm font-semibold text-neutral-800 shadow-[0_4px_0_0_var(--game-amber-edge)] dark:text-neutral-100">
+          <div className="relative max-w-sm rounded-2xl border-2der-game-amber-edge bg-game-amber-soft px-4 py-2 text-center text-sm font-semibold text-neutral-800 shadow-[0_4px_0_0_var(--game-amber-edge)] dark:text-neutral-100">
             <span
               aria-hidden="true"
-              className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-l-[2px] border-t-[2px] border-game-amber-edge bg-game-amber-soft"
+              className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-game-amber-edge bg-game-amber-soft"
             />
             {lastFeedback}
           </div>

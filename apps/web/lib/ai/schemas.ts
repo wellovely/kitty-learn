@@ -41,7 +41,7 @@ export const ChatMessage = z.object({
 export type ChatMessage = z.infer<typeof ChatMessage>
 
 export const ChatReply = z.object({
-  reply: z.string().min(1).max(240),
+  reply: z.string().min(1).max(360),
   emotion: Emotion,
 })
 export type ChatReply = z.infer<typeof ChatReply>
