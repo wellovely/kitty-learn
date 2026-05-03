@@ -1,0 +1,553 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kitty Learn HTTP API",
+    "version": "1.0.0",
+    "description": "Next.js Route Handlers under `/api`. Most routes require a Supabase session (browser cookies after login). Parent-scoped POST routes also require the authenticated user to own `childId`."
+  },
+  "servers": [{ "url": "/", "description": "Same host as the Next.js app" }],
+  "tags": [
+    { "name": "curriculum", "description": "Read-only catalog (session required)" },
+    { "name": "ai", "description": "AI helpers and voice" },
+    { "name": "progress", "description": "Lesson progress" },
+    { "name": "meta", "description": "API documentation" }
+  ],
+  "paths": {
+    "/api/openapi": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "OpenAPI document",
+        "description": "Public JSON specification for this API.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.0 document",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "additionalProperties": true }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/curriculum/units": {
+      "get": {
+        "tags": ["curriculum"],
+        "summary": "List units with lessons",
+        "responses": {
+          "200": {
+            "description": "Ordered units; each `lessons` array sorted by `order_index`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UnitWithLessons" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/curriculum/units/{unitId}": {
+      "get": {
+        "tags": ["curriculum"],
+        "summary": "Get one unit with lessons",
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unit with sorted lessons",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnitWithLessons" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "Unknown unit id",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" },
+                "example": { "error": "not_found" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/ai/evaluate": {
+      "post": {
+        "tags": ["ai"],
+        "summary": "Evaluate exercise answer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EvaluateBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluation result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EvaluationResult" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/ai/chat": {
+      "post": {
+        "tags": ["ai"],
+        "summary": "Kitten chat reply",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reply text and emotion",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChatReply" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": {
+            "description": "Server error (may include `detail` string)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" },
+                    "detail": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/hint": {
+      "post": {
+        "tags": ["ai"],
+        "summary": "Hint for an exercise",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/HintBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hint result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HintResult" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/ai/speak": {
+      "post": {
+        "tags": ["ai"],
+        "summary": "Text-to-speech (Deepgram)",
+        "description": "Returns MP3. `text` max 1000 characters.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SpeakBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MP3 audio",
+            "content": {
+              "audio/mpeg": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ErrorMessage" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": {
+            "description": "Text too long",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErrorMessage" },
+          "502": { "$ref": "#/components/responses/UpstreamError" }
+        }
+      }
+    },
+    "/api/ai/transcribe": {
+      "post": {
+        "tags": ["ai"],
+        "summary": "Speech-to-text (Deepgram)",
+        "description": "Multipart form: field `audio` (file), optional `lang` (default `en`). Max audio size 25 MiB.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["audio"],
+                "properties": {
+                  "audio": { "type": "string", "format": "binary", "description": "Audio blob (e.g. webm)" },
+                  "lang": { "type": "string", "default": "en" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcript",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["text"],
+                  "properties": { "text": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ErrorMessage" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": {
+            "description": "Audio too large",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErrorMessage" },
+          "502": { "$ref": "#/components/responses/UpstreamError" }
+        }
+      }
+    },
+    "/api/progress/submit": {
+      "post": {
+        "tags": ["progress"],
+        "summary": "Submit lesson results",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubmitProgressBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stars, XP, level, streak, new badges",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SubmitProgressResult" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sb-access-token",
+        "description": "Supabase Auth uses multiple cookies; in the browser, log in to the app first. Try it out must send credentials (cookies). Cookie names depend on the Supabase project ref."
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Not logged in",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorBody" },
+            "example": { "error": "unauthorized" }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Authenticated but not parent of child",
+        "content": { "text/plain": { "schema": { "type": "string" } } }
+      },
+      "NotFound": {
+        "description": "Child or resource not found",
+        "content": { "text/plain": { "schema": { "type": "string" } } }
+      },
+      "InternalError": {
+        "description": "Unexpected error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorBody" },
+            "example": { "error": "internal" }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Zod validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "description": "Zod flattened issues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ErrorMessage": {
+        "description": "Error with message",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorBody" }
+          }
+        }
+      },
+      "UpstreamError": {
+        "description": "Upstream (e.g. Deepgram) failure",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      },
+      "LessonSummary": {
+        "type": "object",
+        "required": ["id", "title", "order_index"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "order_index": { "type": "integer" }
+        }
+      },
+      "UnitWithLessons": {
+        "type": "object",
+        "required": ["id", "title", "order_index", "min_age", "lessons"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "order_index": { "type": "integer" },
+          "min_age": { "type": "integer" },
+          "lessons": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LessonSummary" }
+          }
+        }
+      },
+      "EvaluateBody": {
+        "type": "object",
+        "required": ["childId", "exerciseId", "answer"],
+        "properties": {
+          "childId": { "type": "string", "format": "uuid" },
+          "exerciseId": { "type": "string", "format": "uuid" },
+          "answer": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      },
+      "ChatMessage": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": { "type": "string", "enum": ["user", "assistant"] },
+          "content": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "ChatBody": {
+        "type": "object",
+        "required": ["childId", "message"],
+        "properties": {
+          "childId": { "type": "string", "format": "uuid" },
+          "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "history": {
+            "type": "array",
+            "maxItems": 20,
+            "items": { "$ref": "#/components/schemas/ChatMessage" },
+            "default": []
+          }
+        }
+      },
+      "HintBody": {
+        "type": "object",
+        "required": ["childId", "exerciseId"],
+        "properties": {
+          "childId": { "type": "string", "format": "uuid" },
+          "exerciseId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "SubmitProgressBody": {
+        "type": "object",
+        "required": ["childId", "lessonId", "correctCount", "totalCount"],
+        "properties": {
+          "childId": { "type": "string", "format": "uuid" },
+          "lessonId": { "type": "string", "format": "uuid" },
+          "correctCount": { "type": "integer", "minimum": 0 },
+          "totalCount": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "SpeakBody": {
+        "type": "object",
+        "required": ["text"],
+        "properties": {
+          "text": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "voice": {
+            "type": "string",
+            "description": "Deepgram voice model id (default aura-2-thalia-en)"
+          }
+        }
+      },
+      "Emotion": {
+        "type": "string",
+        "enum": ["idle", "happy", "sad", "thinking", "excited", "confused"]
+      },
+      "EvaluationResult": {
+        "type": "object",
+        "required": [
+          "isCorrect",
+          "score",
+          "feedback",
+          "emotion",
+          "suggestedDifficultyDelta"
+        ],
+        "properties": {
+          "isCorrect": { "type": "boolean" },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "feedback": { "type": "string" },
+          "hint": { "type": "string", "maxLength": 160 },
+          "emotion": { "$ref": "#/components/schemas/Emotion" },
+          "suggestedDifficultyDelta": {
+            "type": "string",
+            "enum": ["-1", "0", "+1"]
+          }
+        }
+      },
+      "HintResult": {
+        "type": "object",
+        "required": ["hint", "emotion"],
+        "properties": {
+          "hint": { "type": "string" },
+          "emotion": { "$ref": "#/components/schemas/Emotion" }
+        }
+      },
+      "ChatReply": {
+        "type": "object",
+        "required": ["reply", "emotion"],
+        "properties": {
+          "reply": { "type": "string", "maxLength": 240 },
+          "emotion": { "$ref": "#/components/schemas/Emotion" }
+        }
+      },
+      "BadgeCode": {
+        "type": "string",
+        "enum": [
+          "first_lesson",
+          "streak_3",
+          "streak_7",
+          "perfect_stars",
+          "xp_100",
+          "xp_500"
+        ]
+      },
+      "NewBadge": {
+        "type": "object",
+        "required": ["code", "title", "icon"],
+        "properties": {
+          "code": { "$ref": "#/components/schemas/BadgeCode" },
+          "title": { "type": "string" },
+          "icon": { "type": "string" }
+        }
+      },
+      "SubmitProgressResult": {
+        "type": "object",
+        "required": [
+          "stars",
+          "xpEarned",
+          "totalXp",
+          "level",
+          "streakDays",
+          "newBadges"
+        ],
+        "properties": {
+          "stars": { "type": "integer", "enum": [0, 1, 2, 3] },
+          "xpEarned": { "type": "integer" },
+          "totalXp": { "type": "integer" },
+          "level": { "type": "integer" },
+          "streakDays": { "type": "integer" },
+          "newBadges": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NewBadge" }
+          }
+        }
+      }
+    }
+  },
+  "security": [{ "SessionCookie": [] }]
+}

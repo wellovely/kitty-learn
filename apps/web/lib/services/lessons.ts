@@ -11,6 +11,20 @@ export async function listUnits() {
   return data
 }
 
+/** Units with nested lessons (sorted). Used by API and can replace ad-hoc selects. */
+export async function listUnitsWithLessons() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("units")
+    .select("id, title, order_index, min_age, lessons(id, title, order_index)")
+    .order("order_index", { ascending: true })
+  if (error) throw error
+  return (data ?? []).map((u) => ({
+    ...u,
+    lessons: [...(u.lessons ?? [])].sort((a, b) => a.order_index - b.order_index),
+  }))
+}
+
 export async function getUnit(unitId: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -20,6 +34,14 @@ export async function getUnit(unitId: string) {
     .single()
   if (error) throw error
   return data
+}
+
+export async function getUnitWithSortedLessons(unitId: string) {
+  const unit = await getUnit(unitId)
+  return {
+    ...unit,
+    lessons: [...(unit.lessons ?? [])].sort((a, b) => a.order_index - b.order_index),
+  }
 }
 
 export async function getLesson(lessonId: string) {
