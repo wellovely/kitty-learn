@@ -9,15 +9,15 @@ export default async function AdminLayout({
 }) {
   await requireRole("admin")
   return (
-    <div className="min-h-svh bg-gradient-to-b from-game-purple-soft/40 to-transparent">
+    <div className="min-h-svh bg-linear-to-b from-game-purple-soft/40 to-transparent">
       <header className="border-b-[3px] border-game-purple-edge bg-white dark:bg-neutral-950">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <nav className="flex items-center gap-2 text-sm">
             <Link
               href="/units"
-              className="rounded-full border-[2px] border-game-purple-edge bg-game-purple-soft px-3 py-1 font-bold text-game-purple-edge"
+              className="rounded-full border-2 border-game-purple-edge bg-game-purple-soft px-3 py-1 font-bold text-game-purple-edge"
             >
-              🛠 Kitty Admin
+              Kitty-Admin
             </Link>
             <Link
               href="/units"
