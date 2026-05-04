@@ -12,7 +12,8 @@
         "NEXT_PUBLIC_APP_URL",
         "SUPABASE_SERVICE_ROLE_KEY",
         "OPENROUTER_API_KEY",
-        "DEEPGRAM_API_KEY"
+        "DEEPGRAM_API_KEY",
+        "CRON_SECRET"
       ]
     },
     "lint": {

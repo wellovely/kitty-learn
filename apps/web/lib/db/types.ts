@@ -279,6 +279,57 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          child_id: string | null
+          created_at: string
+          id: string
+          parent_id: string
+          payload: Json
+          read_at: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          parent_id: string
+          payload?: Json
+          read_at?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          body?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          parent_id?: string
+          payload?: Json
+          read_at?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

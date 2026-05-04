@@ -12,6 +12,10 @@ import {
   computeEarnedBadges,
   type BadgeCode,
 } from "./gamification"
+import {
+  buildAchievementNotifications,
+  insertNotifications,
+} from "./notifications"
 
 export type SubmitProgressResult = {
   stars: Stars
@@ -28,7 +32,7 @@ export async function submitProgress(args: {
   correctCount: number
   totalCount: number
 }): Promise<SubmitProgressResult> {
-  await requireParentOfChild(args.childId)
+  const child = await requireParentOfChild(args.childId)
   const supabase = await createClient()
 
   const stars = calculateStars(args.correctCount, args.totalCount)
@@ -67,6 +71,7 @@ export async function submitProgress(args: {
     stats?.streak_days ?? 0
   )
   const newTotalXp = (stats?.total_xp ?? 0) + xpEarned
+  const priorLevel = stats?.level ?? 1
   const newLevel = xpToLevel(newTotalXp)
 
   await supabase.from("child_stats").upsert(
@@ -123,6 +128,18 @@ export async function submitProgress(args: {
       }
     }
   }
+
+  await insertNotifications(
+    buildAchievementNotifications({
+      parentId: child.parent_id,
+      childId: child.id,
+      childName: child.name,
+      newBadges,
+      priorLevel,
+      newLevel,
+      newTotalXp,
+    })
+  )
 
   return {
     stars,
