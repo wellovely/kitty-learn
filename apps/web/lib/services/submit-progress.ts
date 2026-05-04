@@ -16,6 +16,7 @@ import {
   buildAchievementNotifications,
   insertNotifications,
 } from "./notifications"
+import { checkLessonAccess } from "./lesson-access"
 
 export type SubmitProgressResult = {
   stars: Stars
@@ -33,6 +34,18 @@ export async function submitProgress(args: {
   totalCount: number
 }): Promise<SubmitProgressResult> {
   const child = await requireParentOfChild(args.childId)
+
+  const access = await checkLessonAccess({
+    childId: args.childId,
+    lessonId: args.lessonId,
+  })
+  if (access === "not_found") {
+    throw new Response("Lesson not found", { status: 404 })
+  }
+  if (access === "locked") {
+    throw new Response("Lesson is locked", { status: 403 })
+  }
+
   const supabase = await createClient()
 
   const stars = calculateStars(args.correctCount, args.totalCount)
