@@ -12,10 +12,22 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { createClient } from "@/lib/db/browser"
 
+const passwordRules = [
+  { test: (v: string) => v.length >= 8, label: "At least 8 characters" },
+  { test: (v: string) => /[A-Z]/.test(v), label: "An uppercase letter (A–Z)" },
+  { test: (v: string) => /[a-z]/.test(v), label: "A lowercase letter (a–z)" },
+  { test: (v: string) => /\d/.test(v), label: "A digit (0–9)" },
+] as const
+
 const Schema = z.object({
   fullName: z.string().min(1, "Your name is required").max(80),
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "At least 6 characters"),
+  password: z
+    .string()
+    .min(8, "At least 8 characters")
+    .regex(/[A-Z]/, "Must include an uppercase letter")
+    .regex(/[a-z]/, "Must include a lowercase letter")
+    .regex(/\d/, "Must include a digit"),
 })
 type FormValues = z.infer<typeof Schema>
 
@@ -25,11 +37,13 @@ export function SignupForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(Schema),
     defaultValues: { fullName: "", email: "", password: "" },
   })
+  const passwordValue = watch("password")
 
   async function onSubmit(values: FormValues) {
     setPending(true)
@@ -92,10 +106,34 @@ export function SignupForm() {
             type="password"
             autoComplete="new-password"
             aria-invalid={!!errors.password}
+            aria-describedby="password-rules"
             className={inputCls}
             {...register("password")}
           />
-          {errors.password && <p className={errCls}>{errors.password.message}</p>}
+          <ul
+            id="password-rules"
+            className="mt-1 flex flex-col gap-0.5 text-xs"
+            aria-live="polite"
+          >
+            {passwordRules.map((rule) => {
+              const ok = rule.test(passwordValue ?? "")
+              return (
+                <li
+                  key={rule.label}
+                  className={
+                    ok
+                      ? "font-semibold text-game-green-edge"
+                      : "text-neutral-500 dark:text-neutral-400"
+                  }
+                >
+                  <span aria-hidden="true" className="mr-1.5">
+                    {ok ? "✓" : "•"}
+                  </span>
+                  {rule.label}
+                </li>
+              )
+            })}
+          </ul>
         </div>
         <GameButton
           type="submit"
