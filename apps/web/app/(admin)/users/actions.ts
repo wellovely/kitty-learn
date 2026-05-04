@@ -79,7 +79,7 @@ const UpdateUser = z.object({
 })
 
 export async function updateUserProfile(formData: FormData): Promise<void> {
-  await requireRole("admin")
+  const me = await requireRole("admin")
   const parsed = UpdateUser.safeParse({
     userId: formData.get("userId"),
     role: formData.get("role"),
@@ -94,6 +94,10 @@ export async function updateUserProfile(formData: FormData): Promise<void> {
     .eq("id", parsed.data.userId)
     .single()
   if (readErr || !target) throw new Error(readErr?.message ?? "User not found")
+
+  if (parsed.data.userId === me.id && parsed.data.role !== target.role) {
+    throw new Error("You can't change your own role")
+  }
 
   if (target.role === "admin" && parsed.data.role === "parent") {
     const n = await adminProfileCount(service)

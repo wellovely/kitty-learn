@@ -94,7 +94,7 @@ export default async function NotificationsPage() {
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`rounded-full border-[2px] ${tone.edge} bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tone.text}`}
+                        className={`rounded-full border-2 ${tone.edge} bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tone.text}`}
                       >
                         {tone.label}
                       </span>

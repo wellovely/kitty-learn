@@ -1,15 +1,8 @@
-import { GameButton } from "@workspace/ui/components/game-button"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
 import { requireRole } from "@/lib/auth/session"
 import { pickTone } from "@/lib/game-palette"
 import { DeleteUserButton } from "./delete-user-button"
-import { loadAdminUsers, updateUserProfile } from "./actions"
-
-const inputCls =
-  "h-11 rounded-2xl border-[2px] border-neutral-200 bg-white focus-visible:border-game-cyan focus-visible:ring-0 dark:bg-neutral-950"
-
-const selectCls = `${inputCls} w-full min-w-[7rem] cursor-pointer bg-white py-0 pr-8 dark:bg-neutral-950`
+import { UserRowEdit } from "./user-row-edit"
+import { loadAdminUsers } from "./actions"
 
 function formatDate(iso: string) {
   try {
@@ -72,45 +65,17 @@ export default async function UsersAdminPage() {
                     {formatDate(u.created_at)}
                   </td>
                   <td className="px-3 py-3 align-top">
-                    <form action={updateUserProfile} className="flex flex-col gap-3">
-                      <input type="hidden" name="userId" value={u.id} />
-                      <div className="flex flex-col gap-1">
-                        <Label htmlFor={`role-${u.id}`} className="text-xs font-bold">
-                          Role
-                        </Label>
-                        <select
-                          id={`role-${u.id}`}
-                          name="role"
-                          defaultValue={u.role}
-                          className={selectCls}
-                          aria-label="Role"
-                        >
-                          <option value="parent">parent</option>
-                          <option value="admin">admin</option>
-                        </select>
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <Label htmlFor={`fn-${u.id}`} className="text-xs font-bold">
-                          Full name
-                        </Label>
-                        <Input
-                          id={`fn-${u.id}`}
-                          name="fullName"
-                          defaultValue={u.full_name ?? ""}
-                          className={inputCls}
-                          maxLength={200}
-                          autoComplete="off"
-                        />
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <GameButton type="submit" color="lime" size="sm">
-                          Save
-                        </GameButton>
-                        {!isSelf && (
-                          <DeleteUserButton userId={u.id} displayName={displayName} />
-                        )}
-                      </div>
-                    </form>
+                    <div className="flex flex-col gap-3">
+                      <UserRowEdit
+                        userId={u.id}
+                        initialRole={u.role === "admin" ? "admin" : "parent"}
+                        initialFullName={u.full_name}
+                        isSelf={isSelf}
+                      />
+                      {!isSelf && (
+                        <DeleteUserButton userId={u.id} displayName={displayName} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               )
