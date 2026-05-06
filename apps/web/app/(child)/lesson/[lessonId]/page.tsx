@@ -28,7 +28,12 @@ export default async function LessonPage({
 
   const exercises = lesson.exercises.map((e) => ({
     id: e.id,
-    type: e.type as "phonics" | "handwriting" | "sight_word" | "vocabulary",
+    type: e.type as
+      | "phonics"
+      | "handwriting"
+      | "sight_word"
+      | "vocabulary"
+      | "match_pairs",
     prompt: e.prompt,
     orderIndex: e.order_index,
     expected: ExpectedAnswer.parse(e.expected),

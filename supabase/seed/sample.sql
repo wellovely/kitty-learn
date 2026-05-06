@@ -15,8 +15,10 @@ insert into public.lessons (id, unit_id, title, order_index) values
   ('00000000-0000-0000-0000-000000000206', '00000000-0000-0000-0000-000000000102', 'Animals',  1),
   ('00000000-0000-0000-0000-000000000207', '00000000-0000-0000-0000-000000000102', 'Colors',   2),
   ('00000000-0000-0000-0000-000000000208', '00000000-0000-0000-0000-000000000102', 'Numbers',  3),
+  ('00000000-0000-0000-0000-000000000211', '00000000-0000-0000-0000-000000000102', 'Match Animals',  4),
   ('00000000-0000-0000-0000-000000000209', '00000000-0000-0000-0000-000000000103', 'Sight Words',    1),
-  ('00000000-0000-0000-0000-000000000210', '00000000-0000-0000-0000-000000000103', 'Mini Sentences', 2)
+  ('00000000-0000-0000-0000-000000000210', '00000000-0000-0000-0000-000000000103', 'Mini Sentences', 2),
+  ('00000000-0000-0000-0000-000000000212', '00000000-0000-0000-0000-000000000103', 'Match the Word', 3)
   on conflict (id) do nothing;
 
 -- ─────────────────────────────── EXERCISES
@@ -27,7 +29,8 @@ delete from public.exercises
 where lesson_id in (
   '00000000-0000-0000-0000-000000000206','00000000-0000-0000-0000-000000000207',
   '00000000-0000-0000-0000-000000000208','00000000-0000-0000-0000-000000000209',
-  '00000000-0000-0000-0000-000000000210'
+  '00000000-0000-0000-0000-000000000210','00000000-0000-0000-0000-000000000211',
+  '00000000-0000-0000-0000-000000000212'
 );
 
 insert into public.exercises (lesson_id, type, prompt, expected, order_index) values
@@ -58,4 +61,12 @@ insert into public.exercises (lesson_id, type, prompt, expected, order_index) va
   -- Lesson 10: Mini Sentences
   ('00000000-0000-0000-0000-000000000210','vocabulary', 'Fill in: "The cat ___" (what does a cat say?)',     '{"answer":"meows","alternatives":["meow","Meows","Meow"]}',    1),
   ('00000000-0000-0000-0000-000000000210','vocabulary', 'Fill in: "I ___ you" (friendly feeling)',           '{"answer":"love","alternatives":["Love","LOVE"]}',             2),
-  ('00000000-0000-0000-0000-000000000210','sight_word', 'Read it back: "The dog runs fast". Type the last word.', '{"answer":"fast","alternatives":["Fast","FAST"]}',       3);
+  ('00000000-0000-0000-0000-000000000210','sight_word', 'Read it back: "The dog runs fast". Type the last word.', '{"answer":"fast","alternatives":["Fast","FAST"]}',       3),
+
+  -- Lesson 11: Match Animals (drag & drop)
+  ('00000000-0000-0000-0000-000000000211','match_pairs','Drag each word onto the matching animal.',
+    '{"answer":"match_complete","pairs":[{"left":"🐱","right":"Cat"},{"left":"🐶","right":"Dog"},{"left":"🐦","right":"Bird"},{"left":"🐟","right":"Fish"}]}', 1),
+
+  -- Lesson 12: Match the Word (drag & drop)
+  ('00000000-0000-0000-0000-000000000212','match_pairs','Drag each word onto the matching picture.',
+    '{"answer":"match_complete","pairs":[{"left":"☀️","right":"Sun"},{"left":"🌙","right":"Moon"},{"left":"⭐","right":"Star"},{"left":"🌧️","right":"Rain"}]}', 1);

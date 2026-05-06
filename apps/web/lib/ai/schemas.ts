@@ -15,6 +15,7 @@ export const ExerciseType = z.enum([
   "handwriting",
   "sight_word",
   "vocabulary",
+  "match_pairs",
 ])
 export type ExerciseType = z.infer<typeof ExerciseType>
 
@@ -46,11 +47,18 @@ export const ChatReply = z.object({
 })
 export type ChatReply = z.infer<typeof ChatReply>
 
+export const MatchPair = z.object({
+  left: z.string().min(1),
+  right: z.string().min(1),
+})
+export type MatchPair = z.infer<typeof MatchPair>
+
 export const ExpectedAnswer = z.object({
   answer: z.string(),
   alternatives: z.array(z.string()).optional(),
   letters: z.array(z.string()).optional(),
   voiceOnly: z.boolean().optional(),
+  pairs: z.array(MatchPair).optional(),
 })
 export type ExpectedAnswer = z.infer<typeof ExpectedAnswer>
 

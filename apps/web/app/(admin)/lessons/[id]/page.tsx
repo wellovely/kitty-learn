@@ -141,6 +141,7 @@ export default async function LessonAdmin({
               <option value="handwriting">Handwriting</option>
               <option value="sight_word">Sight Word</option>
               <option value="vocabulary">Vocabulary</option>
+              <option value="match_pairs">Match pairs (drag &amp; drop)</option>
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -165,9 +166,12 @@ export default async function LessonAdmin({
           </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="answer" className="font-bold">
-              Expected answer
+              Expected answer{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                (leave empty for match_pairs)
+              </span>
             </Label>
-            <Input id="answer" name="answer" required maxLength={200} className={inputCls} />
+            <Input id="answer" name="answer" maxLength={200} className={inputCls} />
           </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="alternatives" className="font-bold">
@@ -200,6 +204,23 @@ export default async function LessonAdmin({
               placeholder="https://…"
               className={inputCls}
             />
+          </div>
+          <div className="flex flex-col gap-1 md:col-span-2">
+            <Label htmlFor="pairs" className="font-bold">
+              Pairs JSON (only for Match pairs type)
+            </Label>
+            <textarea
+              id="pairs"
+              name="pairs"
+              maxLength={2000}
+              placeholder='[{"left":"🐱","right":"Cat"},{"left":"🐶","right":"Dog"}]'
+              className="min-h-[88px] rounded-2xl border-[2px] border-neutral-200 bg-white p-3 text-sm font-mono focus-visible:border-game-cyan focus-visible:outline-none dark:bg-neutral-950"
+            />
+            <p className="text-muted-foreground text-xs">
+              For <code>match_pairs</code>: array of {"{ left, right }"} pairs.
+              The <em>answer</em> field is auto-set to{" "}
+              <code>match_complete</code>.
+            </p>
           </div>
           <label
             htmlFor="voiceOnly"

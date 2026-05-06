@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
         | "phonics"
         | "handwriting"
         | "sight_word"
-        | "vocabulary",
+        | "vocabulary"
+        | "match_pairs",
       prompt: exercise.prompt,
       expected,
       childAge: child.age,

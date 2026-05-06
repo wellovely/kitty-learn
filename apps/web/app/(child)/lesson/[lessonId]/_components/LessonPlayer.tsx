@@ -18,10 +18,15 @@ import { ProgressHUD } from "./ProgressHUD"
 
 type ExerciseInput = {
   id: string
-  type: "phonics" | "handwriting" | "sight_word" | "vocabulary"
+  type: "phonics" | "handwriting" | "sight_word" | "vocabulary" | "match_pairs"
   prompt: string
   orderIndex: number
-  expected: { answer: string; alternatives?: string[]; voiceOnly?: boolean }
+  expected: {
+    answer: string
+    alternatives?: string[]
+    voiceOnly?: boolean
+    pairs?: { left: string; right: string }[]
+  }
   assets: { imageUrl?: string; audioUrl?: string } | null
 }
 
@@ -291,6 +296,7 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
           prompt: current.prompt,
           voiceOnly: current.expected.voiceOnly === true,
           assets: current.assets,
+          pairs: current.expected.pairs,
         }}
         pending={pending}
         onSubmit={handleAnswer}

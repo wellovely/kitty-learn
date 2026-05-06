@@ -9,13 +9,15 @@ import { Input } from "@workspace/ui/components/input"
 import { useSound } from "@/hooks/useSound"
 import { useSpeech } from "@/hooks/useSpeech"
 import { VoiceButton } from "./VoiceButton"
+import { MatchPairsBoard } from "./MatchPairsBoard"
 
 type ExerciseInput = {
   id: string
-  type: "phonics" | "handwriting" | "sight_word" | "vocabulary"
+  type: "phonics" | "handwriting" | "sight_word" | "vocabulary" | "match_pairs"
   prompt: string
   voiceOnly?: boolean
   assets?: { imageUrl?: string; audioUrl?: string } | null
+  pairs?: { left: string; right: string }[]
 }
 
 type Props = {
@@ -54,6 +56,12 @@ const TYPE_INSTRUCTION: Record<
     how: "Type the word that matches, or say it out loud.",
     voiceHow: "Tap the mic and say the word.",
   },
+  match_pairs: {
+    label: "Match pairs",
+    emoji: "🧩",
+    how: "Drag each word onto the picture it matches.",
+    voiceHow: "Drag each word onto the picture it matches.",
+  },
 }
 
 export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Props) {
@@ -69,6 +77,7 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
   const voiceOnly = exercise.voiceOnly === true
   const imageUrl = exercise.assets?.imageUrl
   const audioUrl = exercise.assets?.audioUrl
+  const isMatchPairs = exercise.type === "match_pairs"
 
   function playAudioAsset() {
     if (!audioUrl) return
@@ -168,7 +177,17 @@ export function ExerciseCard({ exercise, pending, onSubmit, onHint, onSkip }: Pr
         />
       )}
 
-      {voiceOnly ? (
+      {isMatchPairs && exercise.pairs && exercise.pairs.length > 0 ? (
+        <div className="mt-4">
+          <MatchPairsBoard
+            pairs={exercise.pairs}
+            pending={pending}
+            onComplete={() => onSubmit("match_complete")}
+            onHint={onHint}
+            onSkip={onSkip}
+          />
+        </div>
+      ) : voiceOnly ? (
         <div className="mt-5 flex flex-col items-center gap-4">
           <VoiceButton onTranscript={handleVoice} />
           <div className="flex w-full items-center justify-between gap-2">
