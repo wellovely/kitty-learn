@@ -17,6 +17,8 @@ type Props = {
   onSkip: () => void
 }
 
+type RectLike = Pick<DOMRect, "bottom" | "height" | "left" | "right" | "top" | "width">
+
 function shuffle<T>(items: T[]): T[] {
   const out = items.slice()
   for (let i = out.length - 1; i > 0; i--) {
@@ -35,6 +37,34 @@ const TONES = [
   { edge: "border-game-red-edge", soft: "bg-game-red-soft", text: "text-game-red-edge" },
 ]
 
+function intersectionArea(a: RectLike, b: RectLike) {
+  const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left))
+  const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top))
+  return width * height
+}
+
+export function findBestOverlappingSlot(
+  cardRect: RectLike,
+  slotRects: (RectLike | null)[],
+  isAvailable: (index: number) => boolean = () => true
+) {
+  let bestIndex: number | null = null
+  let bestArea = 0
+
+  for (let i = 0; i < slotRects.length; i++) {
+    if (!isAvailable(i)) continue
+    const slotRect = slotRects[i]
+    if (!slotRect) continue
+    const area = intersectionArea(cardRect, slotRect)
+    if (area > bestArea) {
+      bestArea = area
+      bestIndex = i
+    }
+  }
+
+  return bestArea > 0 ? bestIndex : null
+}
+
 export function MatchPairsBoard({
   pairs,
   pending,
@@ -44,10 +74,12 @@ export function MatchPairsBoard({
 }: Props) {
   const { play } = useSound()
   const slotRefs = useRef<(HTMLDivElement | null)[]>([])
+  const draggableRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const [filled, setFilled] = useState<(string | null)[]>(() =>
     pairs.map(() => null)
   )
   const [wrongFlash, setWrongFlash] = useState<number | null>(null)
+  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null)
   const completedRef = useRef(false)
 
   const shuffledRights = useMemo(
@@ -66,8 +98,9 @@ export function MatchPairsBoard({
     }
   }, [filled, onComplete])
 
-  function findSlotAt(x: number, y: number): number | null {
+  function findSlotAt(x: number, y: number, onlyAvailable = false): number | null {
     for (let i = 0; i < slotRefs.current.length; i++) {
+      if (onlyAvailable && filled[i]) continue
       const el = slotRefs.current[i]
       if (!el) continue
       const r = el.getBoundingClientRect()
@@ -76,9 +109,26 @@ export function MatchPairsBoard({
     return null
   }
 
-  function handleDragEnd(right: string, _e: unknown, info: PanInfo) {
+  function findSlotForCard(right: string, point?: PanInfo["point"]) {
+    const cardRect = draggableRefs.current[right]?.getBoundingClientRect()
+    if (cardRect) {
+      const slotRects = slotRefs.current.map((slot) => slot?.getBoundingClientRect() ?? null)
+      const idx = findBestOverlappingSlot(cardRect, slotRects, (i) => !filled[i])
+      if (idx !== null) return idx
+    }
+    return point ? findSlotAt(point.x, point.y, true) : null
+  }
+
+  function handleDrag(right: string) {
+    if (pending || completedRef.current) return
+    const nextSlot = findSlotForCard(right)
+    setHoveredSlot((current) => (current === nextSlot ? current : nextSlot))
+  }
+
+  function handleDragEnd(right: string, info: PanInfo) {
+    setHoveredSlot(null)
     if (pending || completedRef.current) return false
-    const idx = findSlotAt(info.point.x, info.point.y)
+    const idx = findSlotForCard(right, info.point)
     if (idx === null) return false
     if (filled[idx]) return false
     if (pairs[idx]?.right === right) {
@@ -104,6 +154,7 @@ export function MatchPairsBoard({
             const tone = TONES[i % TONES.length]!
             const isFilled = filled[i] !== null
             const isWrong = wrongFlash === i
+            const isHovered = hoveredSlot === i && !isFilled
             return (
               <div
                 key={`slot-${i}`}
@@ -115,6 +166,7 @@ export function MatchPairsBoard({
                   tone.edge,
                   tone.soft,
                   isFilled && "shadow-[0_4px_0_0_var(--game-lime-edge)]",
+                  isHovered && "scale-[1.02] shadow-[0_0_0_4px_rgba(88,204,2,0.22)]",
                   isWrong && "animate-[wiggle_0.32s_ease-in-out]"
                 )}
               >
@@ -147,12 +199,17 @@ export function MatchPairsBoard({
               return (
                 <motion.div
                   key={right}
+                  ref={(el) => {
+                    draggableRefs.current[right] = el
+                  }}
                   drag
                   dragSnapToOrigin
                   dragElastic={0.6}
+                  dragMomentum={false}
                   whileDrag={{ scale: 1.08, zIndex: 50 }}
                   whileTap={{ scale: 1.04 }}
-                  onDragEnd={(e, info) => handleDragEnd(right, e, info)}
+                  onDrag={() => handleDrag(right)}
+                  onDragEnd={(_e, info) => handleDragEnd(right, info)}
                   className={cn(
                     "cursor-grab touch-none select-none rounded-2xl border-[3px] bg-white px-3 py-2 text-base font-bold shadow-[0_4px_0_0_var(--game-cyan-edge)] active:cursor-grabbing dark:bg-neutral-950",
                     tone.edge,
