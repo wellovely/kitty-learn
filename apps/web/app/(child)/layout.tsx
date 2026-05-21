@@ -1,4 +1,6 @@
+import { Suspense } from "react"
 import { getProfile, requireUser } from "@/lib/auth/session"
+import { KittyNavigationLoader } from "@/components/navigation/kitty-navigation-loader"
 import { ParentNotificationListener } from "@/components/parent/parent-notification-listener"
 
 export default async function ChildLayout({
@@ -12,6 +14,9 @@ export default async function ChildLayout({
 
   return (
     <div className="relative min-h-svh bg-[#fbfaf6] dark:bg-neutral-950">
+      <Suspense fallback={null}>
+        <KittyNavigationLoader variant="child" />
+      </Suspense>
       {isParent && profile ? (
         <ParentNotificationListener parentId={profile.id} />
       ) : null}

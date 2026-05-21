@@ -32,7 +32,6 @@ export function KittenCharacter({
   const a = ANIM[emotion]
   return (
     <div className="relative flex h-40 w-40 items-center justify-center">
-      {/* soft glow when speaking */}
       <motion.div
         className="absolute inset-0 rounded-full bg-amber-300/30 blur-xl"
         animate={{ scale: speaking ? [1, 1.2, 1] : 1, opacity: speaking ? [0.4, 0.8, 0.4] : 0 }}

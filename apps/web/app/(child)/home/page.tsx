@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { MessageCircle } from "lucide-react"
+import { ArrowRight, MessageCircle } from "lucide-react"
 import { createClient } from "@/lib/db/server"
 import { requireUser } from "@/lib/auth/session"
 import { ChildHeader } from "./_components/ChildHeader"
@@ -89,7 +89,7 @@ export default async function ChildHome({
           </span>
         </span>
         <span className="ml-auto text-amber-700 transition group-hover:translate-x-0.5 dark:text-amber-300">
-          →
+          <ArrowRight />
         </span>
       </Link>
       <Roadmap lessons={flat} childId={childId} />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Flame, Star } from "lucide-react"
+import { ArrowLeft, Flame, Star } from "lucide-react"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { GameButton } from "@workspace/ui/components/game-button"
 import { cn } from "@workspace/ui/lib/utils"
@@ -12,7 +12,7 @@ import { useLessonUI } from "@/stores/lesson-ui"
 import { useSound } from "@/hooks/useSound"
 import { useSpeech } from "@/hooks/useSpeech"
 import { SoundToggle } from "@/components/shared/SoundToggle"
-import { KittenCharacter } from "./KittenCharacter"
+import { KittenCharacter } from "@/components/kitten/kitten-character"
 import { ExerciseCard } from "./ExerciseCard"
 import { ProgressHUD } from "./ProgressHUD"
 
@@ -269,9 +269,9 @@ export function LessonPlayer({ lessonId, lessonTitle, childId, exercises }: Prop
             play("click")
             router.push(`/home?childId=${childId}`)
           }}
-          className="rounded-full px-2 py-0.5 text-sm font-bold text-game-cyan-edge hover:bg-game-cyan-soft"
+          className="flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-bold text-game-cyan-edge hover:bg-game-cyan-soft"
         >
-          ← Quit
+          <ArrowLeft /> Quit
         </button>
         <h1 className="text-base font-bold">{lessonTitle}</h1>
         <SoundToggle />

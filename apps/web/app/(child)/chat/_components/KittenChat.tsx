@@ -13,7 +13,7 @@ import { useVoiceTranscription } from "@/hooks/useVoiceTranscription"
 import { useSpeech } from "@/hooks/useSpeech"
 import { useSound } from "@/hooks/useSound"
 import { SoundToggle } from "@/components/shared/SoundToggle"
-import { KittenCharacter } from "@/app/(child)/lesson/[lessonId]/_components/KittenCharacter"
+import { KittenCharacter } from "@/components/kitten/kitten-character"
 
 type Props = {
   childId: string

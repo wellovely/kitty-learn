@@ -1,5 +1,7 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { BellIcon } from "lucide-react"
+import { KittyNavigationLoader } from "@/components/navigation/kitty-navigation-loader"
 import { requireRole } from "@/lib/auth/session"
 import { createClient } from "@/lib/db/server"
 import { SignOutButton } from "@/components/auth/sign-out-button"
@@ -27,6 +29,9 @@ export default async function ParentLayout({
 
   return (
     <div className="min-h-svh bg-gradient-to-b from-game-cyan-soft/40 to-transparent">
+      <Suspense fallback={null}>
+        <KittyNavigationLoader variant="parent" />
+      </Suspense>
       <ParentNotificationListener parentId={profile.id} />
       <header className="border-b-[3px] border-game-cyan-edge bg-white dark:bg-neutral-950">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">

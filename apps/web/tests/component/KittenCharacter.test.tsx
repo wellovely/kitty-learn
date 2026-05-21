@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
-import { KittenCharacter } from "@/app/(child)/lesson/[lessonId]/_components/KittenCharacter"
+import { KittenCharacter } from "@/components/kitten/kitten-character"
 
 vi.mock("next/image", () => ({
   __esModule: true,
