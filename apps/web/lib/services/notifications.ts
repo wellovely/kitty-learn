@@ -5,6 +5,8 @@ export type NotificationType =
   | "achievement"
   | "streak_risk"
   | "weekly_summary"
+  | "lesson_completed"
+  | "streak"
 
 export type NotificationInsert = {
   parentId: string
@@ -18,20 +20,22 @@ export type NotificationInsert = {
 export async function insertNotifications(items: NotificationInsert[]) {
   if (items.length === 0) return
   const supabase = createServiceClient()
-  const rows = items.map((n) => ({
-    parent_id: n.parentId,
-    child_id: n.childId ?? null,
-    type: n.type,
-    title: n.title,
-    body: n.body ?? null,
-    payload: (n.payload ?? {}) as Json,
-  }))
-  await supabase
-    .from("notifications")
-    .upsert(rows, {
-      onConflict: "parent_id,child_id,type,((payload->>'dedupe_key'))",
-      ignoreDuplicates: true,
+  for (const n of items) {
+    const { error } = await supabase.from("notifications").insert({
+      parent_id: n.parentId,
+      child_id: n.childId ?? null,
+      type: n.type,
+      title: n.title,
+      body: n.body ?? null,
+      payload: (n.payload ?? {}) as Json,
     })
+    // Unique index on (parent_id, child_id, type, payload.dedupe_key) — skip duplicates.
+    if (error?.code === "23505") continue
+    if (error) {
+      console.error("insert notification failed", error)
+      throw error
+    }
+  }
 }
 
 export function buildAchievementNotifications(args: {
@@ -81,4 +85,58 @@ export function buildAchievementNotifications(args: {
   }
 
   return out
+}
+
+export function buildLessonCompletedNotification(args: {
+  parentId: string
+  childId: string
+  childName: string
+  lessonId: string
+  lessonTitle: string
+  stars: number
+  xpEarned: number
+}): NotificationInsert | null {
+  return {
+    parentId: args.parentId,
+    childId: args.childId,
+    type: "lesson_completed",
+    title: `${args.childName} completed a lesson`,
+    body: `${args.lessonTitle} · ${args.stars}★ · +${args.xpEarned} XP`,
+    payload: {
+      lesson_id: args.lessonId,
+      lesson_title: args.lessonTitle,
+      stars: args.stars,
+      xp_earned: args.xpEarned,
+      dedupe_key: `lesson:${args.lessonId}`,
+    },
+  }
+}
+
+export function buildStreakActivityNotification(args: {
+  parentId: string
+  childId: string
+  childName: string
+  streakDays: number
+  today: string
+}): NotificationInsert | null {
+  const title =
+    args.streakDays <= 1
+      ? `${args.childName} started a streak`
+      : `${args.childName} continued a ${args.streakDays}-day streak`
+  const body =
+    args.streakDays <= 1
+      ? "First activity today — keep it going!"
+      : "Streak saved for today."
+
+  return {
+    parentId: args.parentId,
+    childId: args.childId,
+    type: "streak",
+    title,
+    body,
+    payload: {
+      streak_days: args.streakDays,
+      dedupe_key: `streak_day:${args.today}`,
+    },
+  }
 }

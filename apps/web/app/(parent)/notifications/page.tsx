@@ -29,6 +29,18 @@ const TYPE_TONE: Record<
     soft: "bg-game-purple-soft",
     text: "text-game-purple-edge",
   },
+  lesson_completed: {
+    label: "Lesson completed",
+    edge: "border-game-cyan-edge",
+    soft: "bg-game-cyan-soft",
+    text: "text-game-cyan-edge",
+  },
+  streak: {
+    label: "Streak",
+    edge: "border-game-orange-edge",
+    soft: "bg-game-orange-soft",
+    text: "text-game-orange-edge",
+  },
 }
 
 function formatWhen(iso: string): string {

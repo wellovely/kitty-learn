@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { buildAchievementNotifications } from "@/lib/services/notifications"
+import {
+  buildAchievementNotifications,
+  buildLessonCompletedNotification,
+  buildStreakActivityNotification,
+} from "@/lib/services/notifications"
 
 const base = {
   parentId: "00000000-0000-0000-0000-000000000001",
@@ -79,5 +83,53 @@ describe("buildAchievementNotifications", () => {
       "badge:xp_100",
       "level:2",
     ])
+  })
+})
+
+describe("buildLessonCompletedNotification", () => {
+  it("emits lesson_completed with lesson dedupe key", () => {
+    const out = buildLessonCompletedNotification({
+      parentId: base.parentId,
+      childId: base.childId,
+      childName: base.childName,
+      lessonId: "00000000-0000-0000-0000-000000000099",
+      lessonTitle: "Counting to 5",
+      stars: 3,
+      xpEarned: 35,
+    })
+    expect(out).not.toBeNull()
+    expect(out!.type).toBe("lesson_completed")
+    expect(out!.title).toContain("completed a lesson")
+    expect(out!.body).toContain("Counting to 5")
+    expect(out!.payload?.dedupe_key).toBe(
+      "lesson:00000000-0000-0000-0000-000000000099"
+    )
+  })
+})
+
+describe("buildStreakActivityNotification", () => {
+  it("emits started streak copy for day 1", () => {
+    const out = buildStreakActivityNotification({
+      parentId: base.parentId,
+      childId: base.childId,
+      childName: base.childName,
+      streakDays: 1,
+      today: "2026-05-21",
+    })
+    expect(out!.type).toBe("streak")
+    expect(out!.title).toContain("started a streak")
+    expect(out!.payload?.dedupe_key).toBe("streak_day:2026-05-21")
+  })
+
+  it("emits continued streak copy for multi-day streak", () => {
+    const out = buildStreakActivityNotification({
+      parentId: base.parentId,
+      childId: base.childId,
+      childName: base.childName,
+      streakDays: 5,
+      today: "2026-05-21",
+    })
+    expect(out!.title).toContain("5-day streak")
+    expect(out!.body).toContain("Streak saved")
   })
 })

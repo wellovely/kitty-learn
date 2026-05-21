@@ -14,6 +14,8 @@ import {
 } from "./gamification"
 import {
   buildAchievementNotifications,
+  buildLessonCompletedNotification,
+  buildStreakActivityNotification,
   insertNotifications,
 } from "./notifications"
 import { checkLessonAccess } from "./lesson-access"
@@ -78,8 +80,9 @@ export async function submitProgress(args: {
     .maybeSingle()
 
   const today = todayISO()
+  const priorLastActive = stats?.last_active_on ?? null
   const newStreak = updateStreak(
-    stats?.last_active_on ?? null,
+    priorLastActive,
     today,
     stats?.streak_days ?? 0
   )
@@ -142,8 +145,14 @@ export async function submitProgress(args: {
     }
   }
 
-  await insertNotifications(
-    buildAchievementNotifications({
+  const { data: lesson } = await supabase
+    .from("lessons")
+    .select("title")
+    .eq("id", args.lessonId)
+    .single()
+
+  const notificationItems = [
+    ...buildAchievementNotifications({
       parentId: child.parent_id,
       childId: child.id,
       childName: child.name,
@@ -151,8 +160,34 @@ export async function submitProgress(args: {
       priorLevel,
       newLevel,
       newTotalXp,
+    }),
+  ]
+
+  if (firstTime) {
+    const lessonNotif = buildLessonCompletedNotification({
+      parentId: child.parent_id,
+      childId: child.id,
+      childName: child.name,
+      lessonId: args.lessonId,
+      lessonTitle: lesson?.title ?? "Lesson",
+      stars,
+      xpEarned,
     })
-  )
+    if (lessonNotif) notificationItems.push(lessonNotif)
+  }
+
+  if (priorLastActive !== today) {
+    const streakNotif = buildStreakActivityNotification({
+      parentId: child.parent_id,
+      childId: child.id,
+      childName: child.name,
+      streakDays: newStreak,
+      today,
+    })
+    if (streakNotif) notificationItems.push(streakNotif)
+  }
+
+  await insertNotifications(notificationItems)
 
   return {
     stars,

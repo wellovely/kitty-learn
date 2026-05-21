@@ -17,13 +17,69 @@ type Props = {
   onSkip: () => void
 }
 
-function shuffle<T>(items: T[]): T[] {
+function hashString(value: string): number {
+  let h = 0
+  for (let i = 0; i < value.length; i++) {
+    h = (Math.imul(31, h) + value.charCodeAt(i)) | 0
+  }
+  return h >>> 0
+}
+
+/** Same input → same order on server and client (avoids hydration mismatch). */
+function seededShuffle<T>(items: T[], seed: string): T[] {
   const out = items.slice()
+  let state = hashString(seed) || 1
+  const rand = () => {
+    state = (Math.imul(1664525, state) + 1013904223) >>> 0
+    return state / 0xffffffff
+  }
   for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = Math.floor(rand() * (i + 1))
     ;[out[i], out[j]] = [out[j]!, out[i]!]
   }
   return out
+}
+
+const DROP_HIT_PADDING = 12
+
+function pointerClientXY(
+  event: MouseEvent | TouchEvent | PointerEvent,
+  draggedEl: HTMLElement | null
+): { x: number; y: number } {
+  if ("changedTouches" in event && event.changedTouches.length > 0) {
+    const t = event.changedTouches[0]!
+    return { x: t.clientX, y: t.clientY }
+  }
+  if ("clientX" in event && Number.isFinite(event.clientX)) {
+    return { x: event.clientX, y: event.clientY }
+  }
+  if (draggedEl) {
+    const r = draggedEl.getBoundingClientRect()
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+  }
+  return { x: 0, y: 0 }
+}
+
+function findSlotIndex(
+  slots: (HTMLDivElement | null)[],
+  x: number,
+  y: number
+): number | null {
+  const pad = DROP_HIT_PADDING
+  for (let i = 0; i < slots.length; i++) {
+    const el = slots[i]
+    if (!el) continue
+    const r = el.getBoundingClientRect()
+    if (
+      x >= r.left - pad &&
+      x <= r.right + pad &&
+      y >= r.top - pad &&
+      y <= r.bottom + pad
+    ) {
+      return i
+    }
+  }
+  return null
 }
 
 const TONES = [
@@ -44,16 +100,18 @@ export function MatchPairsBoard({
 }: Props) {
   const { play } = useSound()
   const slotRefs = useRef<(HTMLDivElement | null)[]>([])
+  const dragRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const [filled, setFilled] = useState<(string | null)[]>(() =>
     pairs.map(() => null)
   )
   const [wrongFlash, setWrongFlash] = useState<number | null>(null)
   const completedRef = useRef(false)
 
-  const shuffledRights = useMemo(
-    () => shuffle(pairs.map((p) => p.right)),
-    [pairs]
-  )
+  const shuffledRights = useMemo(() => {
+    const rights = pairs.map((p) => p.right)
+    const seed = pairs.map((p) => `${p.left}\0${p.right}`).join("\x1e")
+    return seededShuffle(rights, seed)
+  }, [pairs])
 
   const remaining = shuffledRights.filter((r) => !filled.includes(r))
 
@@ -66,19 +124,14 @@ export function MatchPairsBoard({
     }
   }, [filled, onComplete])
 
-  function findSlotAt(x: number, y: number): number | null {
-    for (let i = 0; i < slotRefs.current.length; i++) {
-      const el = slotRefs.current[i]
-      if (!el) continue
-      const r = el.getBoundingClientRect()
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i
-    }
-    return null
-  }
-
-  function handleDragEnd(right: string, _e: unknown, info: PanInfo) {
+  function handleDragEnd(
+    right: string,
+    event: MouseEvent | TouchEvent | PointerEvent,
+    _info: PanInfo
+  ) {
     if (pending || completedRef.current) return false
-    const idx = findSlotAt(info.point.x, info.point.y)
+    const { x, y } = pointerClientXY(event, dragRefs.current[right] ?? null)
+    const idx = findSlotIndex(slotRefs.current, x, y)
     if (idx === null) return false
     if (filled[idx]) return false
     if (pairs[idx]?.right === right) {
@@ -107,9 +160,6 @@ export function MatchPairsBoard({
             return (
               <div
                 key={`slot-${i}`}
-                ref={(el) => {
-                  slotRefs.current[i] = el
-                }}
                 className={cn(
                   "flex items-center gap-3 rounded-2xl border-[3px] p-2 transition-transform",
                   tone.edge,
@@ -122,8 +172,11 @@ export function MatchPairsBoard({
                   {p.left}
                 </span>
                 <div
+                  ref={(el) => {
+                    slotRefs.current[i] = el
+                  }}
                   className={cn(
-                    "flex h-12 flex-1 items-center justify-center rounded-xl border-[2px] border-dashed border-current px-2 text-base font-bold",
+                    "flex h-12 min-h-12 flex-1 items-center justify-center rounded-xl border-[2px] border-dashed border-current px-2 text-base font-bold",
                     tone.text,
                     isFilled && "border-solid bg-white dark:bg-neutral-900"
                   )}
@@ -147,9 +200,13 @@ export function MatchPairsBoard({
               return (
                 <motion.div
                   key={right}
+                  ref={(el) => {
+                    dragRefs.current[right] = el
+                  }}
                   drag
                   dragSnapToOrigin
-                  dragElastic={0.6}
+                  dragElastic={0.2}
+                  dragMomentum={false}
                   whileDrag={{ scale: 1.08, zIndex: 50 }}
                   whileTap={{ scale: 1.04 }}
                   onDragEnd={(e, info) => handleDragEnd(right, e, info)}

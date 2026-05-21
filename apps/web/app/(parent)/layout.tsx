@@ -3,6 +3,7 @@ import { BellIcon } from "lucide-react"
 import { requireRole } from "@/lib/auth/session"
 import { createClient } from "@/lib/db/server"
 import { SignOutButton } from "@/components/auth/sign-out-button"
+import { ParentNotificationListener } from "@/components/parent/parent-notification-listener"
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", hover: "hover:bg-game-cyan-soft hover:text-game-cyan-edge" },
@@ -26,6 +27,7 @@ export default async function ParentLayout({
 
   return (
     <div className="min-h-svh bg-gradient-to-b from-game-cyan-soft/40 to-transparent">
+      <ParentNotificationListener parentId={profile.id} />
       <header className="border-b-[3px] border-game-cyan-edge bg-white dark:bg-neutral-950">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <Link
@@ -33,7 +35,6 @@ export default async function ParentLayout({
             className="flex shrink-0 items-center gap-1.5 rounded-full border-[2px] border-game-cyan-edge bg-game-cyan-soft px-3 py-1 text-sm font-bold text-game-cyan-edge"
             aria-label="Kitty Learn home"
           >
-            <span aria-hidden="true">🐾</span>
             <span className="hidden sm:inline">Kitty Learn</span>
           </Link>
 
