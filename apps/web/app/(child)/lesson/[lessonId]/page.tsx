@@ -16,7 +16,6 @@ export default async function LessonPage({
   const { childId } = await searchParams
   if (!childId) notFound()
 
-  // Verifies parent owns the child; throws 403/404 otherwise.
   await requireParentOfChild(childId)
 
   const access = await checkLessonAccess({ childId, lessonId })

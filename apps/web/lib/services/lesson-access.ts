@@ -2,11 +2,6 @@ import { createClient } from "@/lib/db/server"
 
 export type LessonAccess = "ok" | "not_found" | "locked"
 
-/**
- * Pure unlock check. First lesson is always open; each next lesson is open
- * when every previous lesson (flat across units in order_index order) has
- * at least 1 star. Used to gate /lesson/[id] and progress submission.
- */
 export function isLessonUnlocked(args: {
   flatLessonIds: readonly string[]
   targetId: string
@@ -21,10 +16,6 @@ export function isLessonUnlocked(args: {
   return "ok"
 }
 
-/**
- * DB-backed gate for a (child, lesson) pair. Does NOT verify parent
- * ownership — call requireParentOfChild first.
- */
 export async function checkLessonAccess(args: {
   childId: string
   lessonId: string
