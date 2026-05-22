@@ -10,6 +10,7 @@
     { "name": "curriculum", "description": "Read-only catalog (session required)" },
     { "name": "ai", "description": "AI helpers and voice" },
     { "name": "progress", "description": "Lesson progress" },
+    { "name": "leaderboard", "description": "Global XP rankings (parent)" },
     { "name": "meta", "description": "API documentation" }
   ],
   "paths": {
@@ -272,6 +273,43 @@
         }
       }
     },
+    "/api/leaderboard": {
+      "get": {
+        "tags": ["leaderboard"],
+        "summary": "Global XP leaderboard (top learners)",
+        "description": "Parent-only. Returns up to 50 children ranked by total XP (competition ranking). Includes `isMine` when the child belongs to the authenticated parent.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranked leaderboard entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["entries"],
+                  "properties": {
+                    "entries": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/LeaderboardEntry" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
     "/api/progress/submit": {
       "post": {
         "tags": ["progress"],
@@ -523,6 +561,30 @@
           "code": { "$ref": "#/components/schemas/BadgeCode" },
           "title": { "type": "string" },
           "icon": { "type": "string" }
+        }
+      },
+      "LeaderboardEntry": {
+        "type": "object",
+        "required": [
+          "rank",
+          "childId",
+          "name",
+          "age",
+          "totalXp",
+          "level",
+          "streakDays",
+          "isMine"
+        ],
+        "properties": {
+          "rank": { "type": "integer", "minimum": 1 },
+          "childId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "age": { "type": "integer", "minimum": 3, "maximum": 10 },
+          "avatarUrl": { "type": "string", "nullable": true },
+          "totalXp": { "type": "integer", "minimum": 0 },
+          "level": { "type": "integer", "minimum": 1 },
+          "streakDays": { "type": "integer", "minimum": 0 },
+          "isMine": { "type": "boolean" }
         }
       },
       "SubmitProgressResult": {

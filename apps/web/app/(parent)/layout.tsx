@@ -10,6 +10,7 @@ import { ParentNotificationListener } from "@/components/parent/parent-notificat
 const NAV = [
   { href: "/dashboard", label: "Dashboard", hover: "hover:bg-game-cyan-soft hover:text-game-cyan-edge" },
   { href: "/children", label: "Children", hover: "hover:bg-game-orange-soft hover:text-game-orange-edge" },
+  { href: "/leaderboard", label: "Leaderboard", hover: "hover:bg-game-amber-soft hover:text-game-amber-edge" },
   { href: "/analytics", label: "Analytics", hover: "hover:bg-game-purple-soft hover:text-game-purple-edge" },
 ] as const
 
